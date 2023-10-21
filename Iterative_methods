@@ -1,0 +1,101 @@
+%This is testing to see which iterative method performs best to solve computationally difficult systems of linear equations
+
+tol = 1e-19;
+Error = 1;
+iterations = 0;
+d = input('Which damping factor? ');
+
+%Checks to see if the damping factor is of appropriate size
+
+validateattributes(d,{'numeric'},{'scalar','positive','<',1});
+
+iter_max = input('Maximum number of iterations? ');
+w = input('List of values for the relaxation parameter? ');
+
+%checks to see if the list of values for w are of appropriate size
+
+validateattributes(w,{'numeric'},{'positive','<',2});
+
+fprintf("\nLoading Hyperlink Matrix...\n \n")
+load("/MATLAB Drive/Honors_EA1_HW/H (1).mat")
+N = size(H, 1);
+
+r = ones(N,1);
+
+
+%Jacobi's iterative method
+
+fprintf("Calculating page rank using Jacobi's method\n \n")
+fprintf("Iteration: \n")
+while iterations < iter_max
+    tic
+    rnew = d*H*r +(1-d);
+    Error = norm(r-rnew, inf);
+    if Error < tol
+        break
+    end
+    iterations = iterations + 1;
+    step(iterations) = norm(r-rnew, inf);
+    r = rnew;
+    fprintf("%3d", iterations)
+    if mod(iterations, 10) == 0
+        fprintf('\n')
+    end
+end
+grid on
+fprintf("\n\nThe error is %3d after %d iterations and %3e seconds.\n", Error, iterations, toc)
+s = semilogy(step, '-o', 'DisplayName', 'Jacobi');
+s.LineWidth = 2;
+s.MarkerFaceColor = 'auto';
+s.MarkerEdgeColor = "auto";
+xlabel('Iterations')
+ylabel('error')
+legend('Jacobi')
+hold on
+
+%Gauss's iterative method
+fprintf("\nCalculating PageRank using the Gauss-Seidel method ...\n\n")
+I = speye(N);
+A = sparse(I - d*H);
+L = tril(A, -1);
+D = diag(diag(A));
+values = length(w);
+
+%Cycles through the values in w
+
+for ii = 1:values
+    Error = 1;
+    step = [];
+    iterations = 0;
+    M = 1/(w(ii)) * D + L;
+    constant = M - A;
+    r = ones(N,1);
+    fprintf("w = %d\n\n", w(ii))
+    fprintf("iteration: \n")
+    while iterations < iter_max
+        tic
+        rnew = M\(constant*r + (1-d));
+        Error = norm(r-rnew, inf);
+        if Error < tol
+            break
+        end
+        iterations = iterations + 1;
+        step(iterations) = norm(r-rnew, inf);
+        r = rnew;
+        fprintf("%3d", iterations)
+        if mod(iterations, 10) == 0
+            fprintf('\n')
+        end
+    end
+    fprintf("\n\nThe error is %3d after %d iterations and %3e seconds.\n\n", Error, iterations, toc)
+    s = semilogy(step, '-o', 'DisplayName', "w = " + w(ii));
+    s.LineWidth = 2;
+    s.MarkerFaceColor = 'auto';
+    s.MarkerEdgeColor = "auto";
+    xlabel('Iterations')
+    ylabel('error')
+end
+grid on
+title("Convergence for N = " + N + " and d = " + d)
+
+
