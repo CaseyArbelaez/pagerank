@@ -1,0 +1,8 @@
+"This is a matlab program that I made in order to determine which iterative (Jacobi's method or Gauss's method, which had predeterminded weight values w) method would most 
+efficiently calculate the page rank of a convoluted digraph network. You can try runnning this program on matlab and experimenting with different values for w 
+and analyze using the plot feature to see which iterative method converges the fastest. In certain instances, it is not uncommon to select values for w that end up not converging. 
+In any case, you should be able to see the effects of choosing extreme values for w and notice their tendancy to never converge even after a huge amount of iterations. All in all,
+this just shows one example of getting around backwards division in matlab to solve these more complicated linear algebra problems, which can be an extremely demanding process 
+for your rcomputer and not to mention a slow one. Also if you want to run the program, make sure you define H, which is the hyperlink matrix of a digraph with N nodes. I designed it
+without the consideration of self loops, but you can also use the randi function to generate an NxN matrix of random numbers between 0 and 1 and then take account for a diagnol of 0s, 
+which essentially omitting self loops."
