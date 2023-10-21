@@ -1,0 +1,103 @@
+%This is a slightly unrelated file; however, the central theme of iterative methods is there. I defined 3 functions in matlab, in 3 separate files, and I used them to find
+%the zeros of any function given. Sometimes these methods do not converge either due to the geometric shape of the curve we are trying to find the root of. But this did give
+%me more ideas about how I could also write an algorithm for gradient descent using for example newtons method, to descend to a relative minimum, which can be the root of the
+%first derivative function. I'm not entirely sure if this could be possible or if this is even viable given the complex nature of the higher order functions that are present
+%in say a neural network, but it would defintely be fun to try this for a future project. I also included the format of how these functions should be called in matlab given 
+%you have 3 separate files for taylors, halleys, and newtons all the way at the bottom. You can also see which iterative method is best for a given function, which is typically 
+%taylors, through the plotting feature in this program, which allows you to analyze which function tends to converge the quickest, similar to what I did in the page rank one
+
+
+function z = halley(f,df,d2f,x0)
+    x = x0;
+    y = f(x);
+    y1 = df(x);
+    y2 = d2f(x);
+    count = 1;
+    while abs(y) > 10^(-4)
+        xn = x;
+        x = x - (2*y*y1)/(2*(y1)^2 -y*y2);
+        y = f(x);
+        y1 = df(x);
+        y2 = d2f(x);
+        step(count) = x - xn;
+        count = count + 1;
+        
+    end
+    z = x;
+    abs(step);
+    semilogy(abs(step), '-xgreen')
+end
+
+
+function z = newton(f,df,x0)
+    x = x0;
+    y = f(x);
+    count = 1;
+    while abs(y) > 10^(-4)
+        xn = x;
+        x = x - y/df(x);
+        y = f(x);
+        step(count) = x - xn;
+        count = count + 1;
+    end
+    z = x;
+    semilogy(abs(step), '-*blue')
+end
+
+
+
+function z1 = taylor2(f,df,d2f,x0)
+    x1 = x0;
+    y = f(x1);
+    y1 = df(x1);
+    y2 = d2f(x1);
+    count = 1;
+    while abs(y) > 10^(-4)
+        c = y1^2 - 2*y*y2;
+        g = -y/y1;
+        d = -y1/y2;
+        if c > 0
+            Q = sqrt(c)/y2;
+            a = d + Q;
+            b = d - Q;
+            minmod = min(abs(a), abs(b));
+            if minmod == abs(a)
+                xn = x1;
+                x1 = x1 + a;
+                y = f(x1);
+                y1 = df(x1);
+                y2 = d2f(x1);
+                step(count) = x1 - xn;
+                count = count + 1;
+            else
+                xn = x1;
+                x1 = x1 + b;
+                y = f(x1);
+                y1 = df(x1);
+                y2 = d2f(x1);
+                step(count) = x1 -xn;
+                count = count + 1;
+            end
+        else
+            xn = x1;
+            x1 = x1 + g;
+            y = f(x1);
+            y1 = df(x1);
+            y2 = d2f(x1);
+            step(count) = x1 - xn;
+            count = count + 1;
+        end
+    end
+    z1 = x1;
+    semilogy(abs(step), '-ored')
+    
+end
+
+newton(@(x) x - 2*x^2 + x^4 + x^6, @(x) 1 - 4*x + 4*x^3 + 6*x^5, 1)
+hold on
+halley(@(x) x - 2*x^2 + x^4 + x^6, @(x) 1 - 4*x + 4*x^3 + 6*x^5, @(x) -4 + 12*x^2 + 30*x^4, 1)
+taylor2(@(x) x - 2*x^2 + x^4 + x^6, @(x) 1 - 4*x + 4*x^3 + 6*x^5, @(x) -4 + 12*x^2 + 30*x^4, 1)
+
+legend('newton', 'taylor2', 'Halley')
+
+
